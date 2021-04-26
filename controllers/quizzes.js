@@ -18,6 +18,16 @@ async function show (req, res) {
     }
 }
 
+async function showUsers (req, res) {
+    try {
+        const quiz = await Quiz.findById(req.params.id);
+        const users = await quiz.getUsers();
+        res.status(200).json(users)
+    } catch (err) {
+        res.status(404).json({err})
+    }
+}
+
 async function create (req, res) {
     try {
         const quiz = await Quiz.create(req.body);
@@ -37,14 +47,14 @@ async function update (req, res) {
     }
 }
 
-// async function destroy (req, res) {
-//     try {
-//         const quiz = await Quiz.findById(req.params.id);
-//         const resp = await quiz.destroy();
-//         res.status(204).end();
-//     } catch (err) {
-//         res.status(404).json({err});
-//     };
-// }
+async function destroy (req, res) {
+    try {
+        const quiz = await Quiz.findById(req.params.id);
+        const resp = await quiz.destroy();
+        res.status(204).end();
+    } catch (err) {
+        res.status(404).json({err});
+    };
+}
 
-module.exports = { index, show, create, update, destroy }
+module.exports = { index, show, showUsers, create, update, destroy }
