@@ -26,10 +26,13 @@ io.on('connection', (socket) => {
         socket.join(gameId)
         socket.broadcast.to(gameId).emit('add-user', { username })
 
-        const roomData = io.sockets.adapter.rooms[gameId]
+        console.log(io.sockets.adapter.rooms)
+
+        const roomData = io.sockets.adapter.rooms.get(gameId);
         console.log(roomData)
-        const inRoomCount = roomData.length
-        const inRoomIds = Object.keys(roomData.sockets)
+        const inRoomCount = roomData.size
+        console.log(inRoomCount)
+        const inRoomIds = Array(roomData)
 
         socket.emit('entry-permission', { gameId, players: inRoomIds})
         socket.to(gameId).emit('new-player-joining', { username, gameId })
