@@ -14,7 +14,7 @@ class Quiz {
         return new Promise(async (resolve, reject) => {
             try {
                 const result = await db.query(SQL`SELECT * FROM quizzes;`)
-                const quizzes = result.rows.map(u => new Quiz(u))
+                const quizzes = result.rows.map(q => new Quiz(q))
                 resolve(quizzes);
             } catch (err) {
                 reject(`Error retrieving quizzes: ${err}`)
@@ -35,6 +35,8 @@ class Quiz {
     }
 
 
+
+
     static create({ category, difficulty, length }) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -50,17 +52,35 @@ class Quiz {
         });
     }
 
+    getUsers() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const result = await db.query(
+                    SQL`SELECT Users.id, Users.name, UserScore.score 
+                        FROM Users 
+                        INNER JOIN UserScore 
+                        ON Users.id = UserScore.user_id
+                        WHERE UserScore.quiz_id = ${this.id};`
+                )
+                const users = result.rows;
+                resolve(users);
+            } catch (err) {
+                reject(`Error retrieving quiz: ${err}`)
+            }
+        });
+    }
+
     update(data) {
         return new Promise(async (resolve, reject) => {
-            let valuesToUpdate='';
-               
+            let valuesToUpdate = '';
+
             for (const [key, value] of Object.entries(data)) {
                 valuesToUpdate += `${key} = '${value}',`
             }
-            
+
             valuesToUpdate = valuesToUpdate.slice(0, -1);
-            
-            const query =  `UPDATE quizzes SET ${valuesToUpdate}
+
+            const query = `UPDATE quizzes SET ${valuesToUpdate}
                             WHERE id = ${this.id} RETURNING *;`
             console.log(query);
             try {
