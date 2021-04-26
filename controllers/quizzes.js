@@ -1,4 +1,5 @@
 const Quiz = require('../models/Quiz');
+const User = require('../models/User');
 
 async function index (req, res) {
     try {
@@ -49,8 +50,9 @@ async function update (req, res) {
 
 async function updateUserScore (req, res) {
     try {
-        const quiz = await Quiz.findById(req.params.q_id);
-        const userScores = await quiz.updateUserScore({ id: req.params.u_id, score: req.body.score});
+        const quiz = await Quiz.findById(req.params.id);
+        const user = await User.findByName(req.params.name);
+        const userScores = await quiz.updateUserScore({ user, score: req.body.score});
         res.status(200).json(userScores)
     } catch (err) {
         res.status(404).json({err})
