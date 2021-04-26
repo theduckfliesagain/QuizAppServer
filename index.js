@@ -19,23 +19,24 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('admin-message', `A new friend has arrived!`)
 
     socket.on('disconnect', () => {
-        if (socket.id.values().next().value in socketUsernames) {
+        if (socket.id in socketUsernames) {
             delete socketUsernames[socket.id.values().next().value];
         }
         console.log('user disconnected');
     });
 
     socket.on('request-join-game', ({room, username}) => {
-        console.log(socket.id)
-        socketUsernames[socket.id.values().next().value] = username;
+        socketUsernames[socket.id] = username;
         socket.join(room)
         socket.broadcast.to(room).emit('add-user', { username })
 
         const roomData = io.sockets.adapter.rooms.get(room);
         const inRoomCount = roomData.size
-        console.log(roomData)
-
-        socket.to(room).emit('new-player-joining', { username, room })
+        let roomUsernames = [];
+        for (const user of roomData) {
+            roomUsernames.push(socketUsernames[user])
+        }
+        socket.to(room).emit('all-payers', { roomUsernames })
         io.in(room).emit('admin-message', `${inRoomCount} players now in ${room}!`)
     })
 })
