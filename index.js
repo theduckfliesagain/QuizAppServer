@@ -20,22 +20,16 @@ io.on('connection', (socket) => {
         console.log('user disconnected');
     });
 
-    socket.on('request-join-game', ({gameId, username}) => {
-        console.log(`${username} joining ${gameId}`)
+    socket.on('request-join-game', ({room, username}) => {
 
-        socket.join(gameId)
-        socket.broadcast.to(gameId).emit('add-user', { username })
+        socket.join(room)
+        socket.broadcast.to(room).emit('add-user', { username })
 
-        console.log(io.sockets.adapter.rooms)
-
-        const roomData = io.sockets.adapter.rooms.get(gameId);
-        console.log(roomData)
+        const roomData = io.sockets.adapter.rooms.get(room);
         const inRoomCount = roomData.size
-        console.log(inRoomCount)
-        const inRoomIds = Array(roomData)
 
-        socket.to(gameId).emit('new-player-joining', { username, gameId })
-        io.in(gameId).emit('admin-message', `${inRoomCount} players now in ${gameId}!`)
+        socket.to(room).emit('new-player-joining', { username, room })
+        io.in(room).emit('admin-message', `${inRoomCount} players now in ${room}!`)
     })
 })
 
