@@ -34,7 +34,6 @@ io.on('connection', (socket) => {
         console.log(inRoomCount)
         const inRoomIds = Array(roomData)
 
-        socket.emit('entry-permission', { gameId, players: inRoomIds})
         socket.to(gameId).emit('new-player-joining', { username, gameId })
         io.in(gameId).emit('admin-message', `${inRoomCount} players now in ${gameId}!`)
     })
