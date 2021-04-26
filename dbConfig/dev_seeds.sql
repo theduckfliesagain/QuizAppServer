@@ -6,7 +6,7 @@ VALUES
 ('baggins', 0.9);
 
 INSERT INTO Quizzes (category, difficulty, length)
-VALUES ('Entertainment', 'Easy', 10);
+VALUES (1, 'Easy', 10);
 
 INSERT INTO UserScore (user_id, quiz_id, score)
 VALUES
