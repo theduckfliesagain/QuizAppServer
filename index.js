@@ -20,7 +20,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         if (socket.id in socketUsernames) {
-            delete socketUsernames[socket.id.values().next().value];
+            delete socketUsernames[socket.id];
         }
         console.log('user disconnected');
     });
