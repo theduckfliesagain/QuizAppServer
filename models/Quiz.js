@@ -1,5 +1,6 @@
 const db = require('../dbConfig/init');
 const SQL = require('sql-template-strings')
+const axios = require('axios');
 
 class Quiz {
     constructor(data) {
@@ -7,7 +8,6 @@ class Quiz {
         this.category = data.category
         this.difficulty = data.difficulty
         this.length = data.length
-        this.users = data.users
     }
 
     static get all() {
@@ -34,18 +34,34 @@ class Quiz {
         });
     }
 
-
-
-
-    static create({ category, difficulty, length }) {
+    static create({ category, difficulty, length, users }) {
         return new Promise(async (resolve, reject) => {
             try {
+                // get quiz data
+                const { data } = await axios.get(
+                    `https://opentdb.com/api.php?amount=${length}&category=${category}&difficulty=${difficulty.toLowerCase()}&type=multiple`
+                );
+                if (data.response_code !== 0) throw new Error("Could not return results");
+
+                // add submitted quiz data to db
                 const result = await db.query(
-                    SQL`INSERT INTO quizzes ( category, difficulty, length ) 
+                    SQL`INSERT INTO Quizzes ( category, difficulty, length ) 
                         VALUES (${category}, ${difficulty}, ${length}) RETURNING *;`
                 )
+
                 const quiz = new Quiz(result.rows[0]);
-                resolve(quiz);
+
+                // associate users with this quiz
+                let values = users.map(userId => `(${userId}, ${quiz.id})`).join(',');
+
+                const query = (
+                    `INSERT INTO UserScore ( user_id, quiz_id ) 
+                    VALUES ${values} RETURNING *;`
+                )
+
+                await db.query(query)
+
+                resolve({ quiz, questions: data.results });
             } catch (err) {
                 reject(`Error creating quiz: ${err}`);
             }
@@ -92,17 +108,26 @@ class Quiz {
         });
     }
 
-    updateUserScore({id, score}) {
+    updateUserScore({ user, score }) {
         return new Promise(async (resolve, reject) => {
             try {
                 const result = await db.query(
                     SQL`UPDATE UserScore SET score = ${score}
-                        WHERE UserScore.user_id = ${id}
+                        WHERE UserScore.user_id = ${user.id}
                         AND UserScore.quiz_id = ${this.id}
                         RETURNING *;`
-                    );
-                const userScores = result.rows[0];
-                resolve(userScores);
+                );
+
+                const userScore = result.rows[0];
+                console.log();
+                const newScore = score / this.length;
+
+                if (newScore > user.highscore) {
+                    console.log("Updating score");
+                    await user.update({ highscore: newScore });
+                }
+
+                resolve(userScore);
             } catch (err) {
                 reject(`Error updating user ${id} score for quiz ${this.id}: ${err}`);
             }
