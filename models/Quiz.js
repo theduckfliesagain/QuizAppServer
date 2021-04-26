@@ -65,7 +65,7 @@ class Quiz {
                 const users = result.rows;
                 resolve(users);
             } catch (err) {
-                reject(`Error retrieving quiz: ${err}`)
+                reject(`Error retrieving quiz users: ${err}`)
             }
         });
     }
@@ -77,7 +77,6 @@ class Quiz {
             for (const [key, value] of Object.entries(data)) {
                 valuesToUpdate += `${key} = '${value}',`
             }
-
             valuesToUpdate = valuesToUpdate.slice(0, -1);
 
             const query = `UPDATE quizzes SET ${valuesToUpdate}
@@ -89,6 +88,23 @@ class Quiz {
                 resolve(quiz);
             } catch (err) {
                 reject(`Error updating quiz ${this.id}: ${err}`);
+            }
+        });
+    }
+
+    updateUserScore({id, score}) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const result = await db.query(
+                    SQL`UPDATE UserScore SET score = ${score}
+                        WHERE UserScore.user_id = ${id}
+                        AND UserScore.quiz_id = ${this.id}
+                        RETURNING *;`
+                    );
+                const userScores = result.rows[0];
+                resolve(userScores);
+            } catch (err) {
+                reject(`Error updating user ${id} score for quiz ${this.id}: ${err}`);
             }
         });
     }
