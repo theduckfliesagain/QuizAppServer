@@ -9,6 +9,7 @@ router.get('/:id', quizzesController.show)
 router.put('/:id', quizzesController.update)
 
 router.get('/:id/users', quizzesController.showUsers)
+router.put('/:q_id/users/:u_id', quizzesController.updateUserScore)
 // router.delete('/:id', quizzesController.destroy)
 
 module.exports = router;
