@@ -47,6 +47,16 @@ async function update (req, res) {
     }
 }
 
+async function updateUserScore (req, res) {
+    try {
+        const quiz = await Quiz.findById(req.params.q_id);
+        const userScores = await quiz.updateUserScore({ id: req.params.u_id, score: req.body.score});
+        res.status(200).json(userScores)
+    } catch (err) {
+        res.status(404).json({err})
+    }
+}
+
 async function destroy (req, res) {
     try {
         const quiz = await Quiz.findById(req.params.id);
@@ -57,4 +67,4 @@ async function destroy (req, res) {
     };
 }
 
-module.exports = { index, show, showUsers, create, update, destroy }
+module.exports = { index, show, showUsers, create, update, updateUserScore, destroy }
