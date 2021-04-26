@@ -1,7 +1,8 @@
 const app = require('./server');
 const http = require("http")
-const socketio = require("socket.io");
 const server = http.createServer(app);
+const socketio = require("socket.io");
+const connectionFunctions =  require('./models/Socket');
 const options = {
     cors: {
         origin: "http://localhost:8080",
@@ -10,12 +11,8 @@ const options = {
 };
 const io = socketio(server, options);
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
+io.on('connection', connectionFunctions)
+
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => console.log(`Express now departing from port ${port}!`))
