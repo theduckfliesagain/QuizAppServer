@@ -28,7 +28,6 @@ io.on('connection', (socket) => {
     socket.on('request-join-game', ({room, username}) => {
         socketUsernames[socket.id] = username;
         socket.join(room)
-        socket.broadcast.to(room).emit('add-user', { username })
 
         const roomData = io.sockets.adapter.rooms.get(room);
         const inRoomCount = roomData.size
@@ -36,7 +35,7 @@ io.on('connection', (socket) => {
         for (const user of roomData) {
             roomUsernames.push(socketUsernames[user])
         }
-        socket.to(room).emit('all-payers', { roomUsernames })
+        io.to(room).emit('all-players', { roomUsernames })
         io.in(room).emit('admin-message', `${inRoomCount} players now in ${room}!`)
     })
 })
