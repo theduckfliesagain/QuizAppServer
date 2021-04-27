@@ -35,8 +35,14 @@ io.on('connection', (socket) => {
         for (const user of roomData) {
             roomUsernames.push(socketUsernames[user])
         }
-        io.to(room).emit('all-players', { roomUsernames })
+        io.in(room).emit('all-players', { roomUsernames })
         io.in(room).emit('admin-message', `${inRoomCount} players now in ${room}!`)
+    })
+
+    socket.on('chat-message', (message) => {
+        const username = socketUsernames[socket.id];
+        const room = [...socket.rooms].filter(r => r != socket.id)[0];
+        io.in(room).emit('new-chat-message', {username: username, message: message});
     })
 })
 
