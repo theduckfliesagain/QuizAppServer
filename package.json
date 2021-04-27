@@ -26,6 +26,7 @@
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "pg": "^8.3.3",
+        "socket.io": "^4.0.1"
         "sql-template-strings": "^2.2.2"
     }
 }
