@@ -14,14 +14,21 @@ describe('quizzes controller', () => {
 
     describe('index', () => {
         test('it returns quizzes with a 200 status code', async () => {
-            let testQuizzes = [{ id: '1' }, { id: '2' }]
+            let testQuizzes = [{ id: '1' }, { id: '2' }];
 
             jest.spyOn(Quiz, 'all', 'get')
                 .mockResolvedValue(testQuizzes);
             await quizzesController.index(null, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(testQuizzes);
-        })
+        });
+        test('it returns an error with a 500 status code', async () => {
+            jest.spyOn(Quiz, 'all', 'get')
+                .mockRejectedValue("server error");
+            await quizzesController.index(null, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(500);
+            expect(mockJson).toHaveBeenCalledWith({err: "server error"});
+        });
     });
 
     describe('show', () => {
@@ -36,7 +43,15 @@ describe('quizzes controller', () => {
             await quizzesController.show(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(new Quiz(testQuiz));
-        })
+        });
+        test('it returns an error with a 404 status code', async () => {
+            jest.spyOn(Quiz, 'findById')
+                .mockRejectedValue("invalid ID");
+            const mockReq = { params: { id: 1 } }
+            await quizzesController.show(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(404);
+            expect(mockJson).toHaveBeenCalledWith({err: "invalid ID"});
+        });
     });
 
     describe('showUsers', () => {
@@ -53,7 +68,15 @@ describe('quizzes controller', () => {
             await quizzesController.showUsers(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(testUsers);
-        })
+        });
+        test('it returns an error with a 404 status code', async () => {
+            jest.spyOn(Quiz, 'findById')
+                .mockRejectedValue('Invalid ID')
+            const mockReq = { params: { id: 1 } }
+            await quizzesController.showUsers(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(404);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Invalid ID'});
+        });
     });
 
     describe('create', () => {
@@ -66,7 +89,16 @@ describe('quizzes controller', () => {
             await quizzesController.create(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(201);
             expect(mockJson).toHaveBeenCalledWith(new Quiz(testQuiz));
-        })
+        });
+        test('it returns an error with a 422 status code', async () => {
+            let testQuiz = { id: 1 }
+            jest.spyOn(Quiz, 'create')
+                .mockRejectedValue('Error creating quiz');
+            const mockReq = { body: testQuiz }
+            await quizzesController.create(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(422);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Error creating quiz'});
+        });
     });
 
     describe('update', () => {
@@ -80,7 +112,15 @@ describe('quizzes controller', () => {
             await quizzesController.update(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(new Quiz(resultQuiz));
-        })
+        });
+        test('it returns an error with a 422 status code', async () => {
+            jest.spyOn(Quiz, 'findById')
+                .mockRejectedValue('Invalid ID');
+            const mockReq = { params: {id: 1 }, body: {length: 2} }
+            await quizzesController.update(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(422);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Invalid ID'});
+        });
     });
 
     describe('updateUserScore', () => {
@@ -99,7 +139,15 @@ describe('quizzes controller', () => {
             await quizzesController.updateUserScore(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(testUserScore);
-        })
+        });
+        test('it returns an error with a 404 status code', async () => {
+            jest.spyOn(Quiz, 'findById')
+                .mockRejectedValue('Invalid ID');
+            const mockReq = { params: { id: 1, name: 'test' }, body: { score: 1 } }
+            await quizzesController.updateUserScore(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(404);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Invalid ID'});
+        });
     });
 
 })
