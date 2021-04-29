@@ -61,9 +61,8 @@ describe('users controller', () => {
             const resultUser = {
                 id: 1, name: 'Test User', highscore: 10}
             jest.spyOn(User, 'findByName')
-                .mockResolvedValue({...new User(testUser), update: function(highscore) {
-                    return new User({...testUser, highscore: highscore})} });
-                
+                .mockResolvedValue(new User(testUser));
+            jest.spyOn(User.prototype, 'update').mockResolvedValue(new User(resultUser))
             const mockReq = { params: {name: 'Test User' }, body: 10 }
             await usersController.update(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
