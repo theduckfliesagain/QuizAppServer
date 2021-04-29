@@ -51,7 +51,6 @@ class Quiz {
                 )
 
                 const quiz = new Quiz(result.rows[0]);
-                console.log(quiz)
 
                 // associate users with this quiz
                 let values = users.map(userId => `(${userId}, ${quiz.id})`).join(',');
@@ -129,7 +128,7 @@ class Quiz {
 
                 resolve(userScore);
             } catch (err) {
-                reject(`Error updating user ${id} score for quiz ${this.id}: ${err}`);
+                reject(`Error updating user ${user.id} score for quiz ${this.id}: ${err}`);
             }
         });
     }

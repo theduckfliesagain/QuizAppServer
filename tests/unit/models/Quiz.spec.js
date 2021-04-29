@@ -1,4 +1,5 @@
 const Quiz = require('../../../models/Quiz');
+const User = require('../../../models/User');
 
 const pg = require('pg');
 const SQL = require('sql-template-strings');
@@ -47,7 +48,6 @@ describe('Quiz', () => {
 
 
             const result = await Quiz.create(quizData);
-            console.log(result)
             expect(result.quiz).toHaveProperty('id', 1)
         })
     });
@@ -62,5 +62,27 @@ describe('Quiz', () => {
             expect(result.highscore).toEqual(3);
 
         });
-    })
-})
+    });
+
+    describe('getUsers', () => {
+        test('it resolves with all users in a quiz on successful db query', async () => {
+            let quiz = new Quiz({ id: 1, name: 'TestQuiz', highscore: 0 });
+            const mockData = [{id: 1, name: "test1", score: 10}, {id: 2, name: "test2", score: 5}];
+            jest.spyOn(db, 'query').mockResolvedValueOnce({rows: mockData});
+            const result = await quiz.getUsers();
+            expect(result.length).toEqual(2);
+            expect(result[0]).toStrictEqual(mockData[0]);
+        });
+    });
+
+    describe('updateUserScore', () => {
+        test('it resolves with an updated user score on successful db query', async () => {
+            let quiz = new Quiz({ id: 1, name: 'TestQuiz', highscore: 0, length: 1 });
+            const mockUser = new User({id: 9, name: "TestDude", highscore: 1});
+            const mockData = [{user_id: 9, quiz_id: 1, score: 10}];
+            jest.spyOn(db, 'query').mockResolvedValueOnce({rows: mockData}).mockResolvedValueOnce({rows: [{id: 9, name: "TestDude", highscore: 10}]});
+            const result = await quiz.updateUserScore({user: mockUser, score: 10});
+            expect(result.score).toEqual(10);
+        });
+    });
+});
