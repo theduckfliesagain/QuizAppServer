@@ -20,7 +20,14 @@ describe('users controller', () => {
             await usersController.index(null, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(testUsers);
-        })
+        });
+        test('it returns an error with a 500 status code', async () => {
+            jest.spyOn(User, 'all', 'get')
+                 .mockRejectedValue('Server error');
+            await usersController.index(null, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(500);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Server error'});
+        });
     });
 
     describe('show', () => {
@@ -35,7 +42,16 @@ describe('users controller', () => {
             await usersController.show(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(new User(testUser));
-        })
+        });
+        test('it returns an error with a 404 status code', async () => {
+            jest.spyOn(User, 'findByName')
+                .mockRejectedValue('Invalid username');
+                
+            const mockReq = { params: { name: 'User1' } }
+            await usersController.show(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(404);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Invalid username'});
+        });
     });
 
     describe('create', () => {
@@ -50,7 +66,19 @@ describe('users controller', () => {
             await usersController.create(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(201);
             expect(mockJson).toHaveBeenCalledWith(new User(testUser));
-        })
+        });
+        test('it returns an error with a 422 status code', async () => {
+            let testUser = {
+                id: 1, name: 'Test User'
+            }
+            jest.spyOn(User, 'create')
+                .mockRejectedValue('Error creating user');
+                
+            const mockReq = { body: testUser }
+            await usersController.create(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(422);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Error creating user'});
+        });
     });
 
     describe('update', () => {
@@ -67,6 +95,14 @@ describe('users controller', () => {
             await usersController.update(mockReq, mockRes);
             expect(mockStatus).toHaveBeenCalledWith(200);
             expect(mockJson).toHaveBeenCalledWith(new User(resultUser));
-        })
+        });
+        test('it returns an error with a 422 status code', async () => {
+            jest.spyOn(User, 'findByName')
+                .mockRejectedValue('Invalid username');
+            const mockReq = { params: {name: 'Test User' }, body: 10 }
+            await usersController.update(mockReq, mockRes);
+            expect(mockStatus).toHaveBeenCalledWith(422);
+            expect(mockJson).toHaveBeenCalledWith({err: 'Invalid username'});
+        });
     });
 })
