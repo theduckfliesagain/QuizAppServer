@@ -120,9 +120,7 @@ class Quiz {
 
                 const userScore = result.rows[0];
                 const newScore = score / this.length;
-
                 if (newScore > user.highscore) {
-                    console.log("Updating score");
                     await user.update({ highscore: newScore });
                 }
 
