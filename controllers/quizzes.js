@@ -59,14 +59,4 @@ async function updateUserScore (req, res) {
     }
 }
 
-async function destroy (req, res) {
-    try {
-        const quiz = await Quiz.findById(req.params.id);
-        const resp = await quiz.destroy();
-        res.status(204).end();
-    } catch (err) {
-        res.status(404).json({err});
-    };
-}
-
-module.exports = { index, show, showUsers, create, update, updateUserScore, destroy }
+module.exports = { index, show, showUsers, create, update, updateUserScore }

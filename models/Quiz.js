@@ -8,6 +8,7 @@ class Quiz {
         this.category = data.category
         this.difficulty = data.difficulty
         this.length = data.length
+        this.highscore = data.highscore
     }
 
     static get all() {
@@ -97,7 +98,6 @@ class Quiz {
 
             const query = `UPDATE quizzes SET ${valuesToUpdate}
                             WHERE id = ${this.id} RETURNING *;`
-            console.log(query);
             try {
                 const result = await db.query(query);
                 const quiz = new Quiz(result.rows[0]);
@@ -119,17 +119,14 @@ class Quiz {
                 );
 
                 const userScore = result.rows[0];
-                console.log();
                 const newScore = score / this.length;
-
                 if (newScore > user.highscore) {
-                    console.log("Updating score");
                     await user.update({ highscore: newScore });
                 }
 
                 resolve(userScore);
             } catch (err) {
-                reject(`Error updating user ${id} score for quiz ${this.id}: ${err}`);
+                reject(`Error updating user ${user.id} score for quiz ${this.id}: ${err}`);
             }
         });
     }
