@@ -8,6 +8,7 @@ class Quiz {
         this.category = data.category
         this.difficulty = data.difficulty
         this.length = data.length
+        this.highscore = data.highscore
     }
 
     static get all() {
@@ -50,6 +51,7 @@ class Quiz {
                 )
 
                 const quiz = new Quiz(result.rows[0]);
+                console.log(quiz)
 
                 // associate users with this quiz
                 let values = users.map(userId => `(${userId}, ${quiz.id})`).join(',');
@@ -97,7 +99,6 @@ class Quiz {
 
             const query = `UPDATE quizzes SET ${valuesToUpdate}
                             WHERE id = ${this.id} RETURNING *;`
-            console.log(query);
             try {
                 const result = await db.query(query);
                 const quiz = new Quiz(result.rows[0]);
@@ -119,7 +120,6 @@ class Quiz {
                 );
 
                 const userScore = result.rows[0];
-                console.log();
                 const newScore = score / this.length;
 
                 if (newScore > user.highscore) {

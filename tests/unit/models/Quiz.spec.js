@@ -5,7 +5,7 @@ const SQL = require('sql-template-strings');
 const axios = require('axios');
 jest.mock('pg');
 jest.mock('sql-template-strings');
-jest.mock('axios');
+//jest.mock('axios');
 
 const db = require('../../../dbConfig/init');
 
@@ -39,13 +39,16 @@ describe('Quiz', () => {
                 category: 20, difficulty: 'easy', length: 10,
                 users: [1, 2]
             }
-            
-            axios.get({ data: { response_code: 0, results: [{question: ""}] } });
+            axios.get = jest.fn()
+            axios.get.mockResolvedValueOnce({ data: { response_code: 0, results: [{ question: "" }] } })
+            jest.spyOn(db, 'query').mockResolvedValueOnce({ rows: [{ ...quizData, id: 1 }] })
+
+            //axios.get({ data: { response_code: 0, results: [{question: ""}] } });
 
 
             const result = await Quiz.create(quizData);
-            // expect(result).toHaveProperty('id', 1)
-            // expect(result).toHaveProperty('name', 'TestQuiz')
+            console.log(result)
+            expect(result.quiz).toHaveProperty('id', 1)
         })
     });
 
